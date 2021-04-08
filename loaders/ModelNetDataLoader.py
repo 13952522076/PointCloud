@@ -49,13 +49,13 @@ def farthest_point_sample(point, npoint):
 class ModelNetDataLoader(Dataset):
     def __init__(self, root, args, split='train', process_data=False):
         self.root = root
-        self.npoints = args.num_point
+        self.npoints = args.num_points
         self.process_data = process_data
         self.uniform = args.use_uniform_sample
         self.use_normals = args.use_normals
-        self.num_category = args.num_category
+        self.num_classes = args.num_classes
 
-        if self.num_category == 10:
+        if self.num_classes == 10:
             self.catfile = os.path.join(self.root, 'modelnet10_shape_names.txt')
         else:
             self.catfile = os.path.join(self.root, 'modelnet40_shape_names.txt')
@@ -64,7 +64,7 @@ class ModelNetDataLoader(Dataset):
         self.classes = dict(zip(self.cat, range(len(self.cat))))
 
         shape_ids = {}
-        if self.num_category == 10:
+        if self.num_classes == 10:
             shape_ids['train'] = [line.rstrip() for line in open(os.path.join(self.root, 'modelnet10_train.txt'))]
             shape_ids['test'] = [line.rstrip() for line in open(os.path.join(self.root, 'modelnet10_test.txt'))]
         else:
@@ -79,9 +79,9 @@ class ModelNetDataLoader(Dataset):
 
         if self.uniform:
             self.save_path = os.path.join(root,
-                                          'modelnet%d_%s_%dpts_fps.dat' % (self.num_category, split, self.npoints))
+                                          'modelnet%d_%s_%dpts_fps.dat' % (self.num_classes, split, self.npoints))
         else:
-            self.save_path = os.path.join(root, 'modelnet%d_%s_%dpts.dat' % (self.num_category, split, self.npoints))
+            self.save_path = os.path.join(root, 'modelnet%d_%s_%dpts.dat' % (self.num_classes, split, self.npoints))
 
         if self.process_data:
             if not os.path.exists(self.save_path):

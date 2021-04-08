@@ -1,3 +1,8 @@
+"""
+Re-organized codes for point cloud training
+Usage:
+pthon classification.py --use_normals --use_uniform_sample
+"""
 import argparse
 import os
 import datetime
@@ -27,10 +32,11 @@ def parse_args():
     parser.add_argument('--num_classes', default=40, type=int, choices=[10, 40], help='training on ModelNet10/40')
     parser.add_argument('--epoch', default=200, type=int, help='number of epoch in training')
     parser.add_argument('--learning_rate', default=0.001, type=float, help='learning rate in training')
-    parser.add_argument('--num_point', type=int, default=1024, help='Point Number')
+    parser.add_argument('--num_points', type=int, default=1024, help='Point Number')
     parser.add_argument('--optimizer', type=str, default='Adam', help='optimizer for training')
     parser.add_argument('--decay_rate', type=float, default=1e-4, help='decay rate')
     parser.add_argument('--use_normals', action='store_true', default=False, help='use normals besides x,y,z')
+    parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampiling')
     return parser.parse_args()
 
 
@@ -46,6 +52,7 @@ def main():
         logger.set_names(["Epoch", 'Learning-Rate', 'Train-Loss', 'Train-acc', 'Valid-Loss', 'Valid-acc'])
 
     print('==> Preparing data..')
+    # loader requires args: use_uniform_sample, num_points, use_uniform_sample, use_normals, num_classes
     train_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='train', process_data=args.process_data)
     test_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='test', process_data=args.process_data)
     trainDataLoader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
@@ -56,7 +63,8 @@ def main():
     # Model
     print('==> Building model..')
     try:
-        net = models.__dict__[args.model](num_classes=args.num_classes, use_normals=args.use_normals)
+        net = models.__dict__[args.model](num_classes=args.num_classes,
+                                          use_normals=args.use_normals, num_points=args.num_points)
     except:
         net = models.__dict__[args.model]()
 
