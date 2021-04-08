@@ -154,6 +154,7 @@ class ModelNet40DataSet(Dataset):
         class_names_file = "modelnet%s_shape_names.txt" % (self.class_num)
         self.class_names = [line.rstrip() for line in open(os.path.join(self.root, class_names_file))]
         self.train = train
+        self.points = points
         self.use_uniform_sample = use_uniform_sample
         if self.train:
             self.datafile = "modelnet%s_train.txt" % (self.class_num)
