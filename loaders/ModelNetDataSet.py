@@ -169,7 +169,7 @@ class ModelNet40DataSet(Dataset):
         file_names = [line.rstrip() for line in open(os.path.join(self.root, self.datafile ))]
         for file in file_names:
             class_temp = file.split("_")[0]
-            file_data = np.genfromtxt(os.path.join(self.root, class_temp, file,'.txt'), delimiter=',')
+            file_data = np.genfromtxt(os.path.join(self.root, class_temp, file+'.txt'), delimiter=',')
             print(file_data.shape)
 
 if __name__ == '__main__':
