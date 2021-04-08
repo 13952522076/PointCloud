@@ -170,7 +170,8 @@ class ModelNet40DataSet(Dataset):
         for file in file_names:
             class_temp = file.split("_")[0]
             file_data = np.genfromtxt(os.path.join(self.root, class_temp, file+'.txt'), delimiter=',')
-            print(file_data.shape)
+            file_target =  self.class_names.index(class_temp)
+            print(f"data shape: {file_data.shape} data class: {file_target}")
 
 if __name__ == '__main__':
     modelnet40 = ModelNet40DataSet(root="/work/xm0036/data/modelnet40_normal_resampled",
