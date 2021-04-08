@@ -1,21 +1,14 @@
 import argparse
 import os
-import shutil
-import time
-import traceback
 import datetime
-
 import torch
-from torch.autograd import Variable
-import torch.nn as nn
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
-import torch.distributed as dist
 import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
 import models as models
-from utils import Logger, mkdir_p, progress_bar,save_model,save_args
+from utils import Logger, mkdir_p, progress_bar, save_model, save_args
 from loaders.ModelNetDataLoader import ModelNetDataLoader
 from losses import PointNetLoss, CELoss
 
@@ -24,7 +17,7 @@ model_names = sorted(name for name in models.__dict__
 
 
 def parse_args():
-    '''PARAMETERS'''
+    """Parameters"""
     parser = argparse.ArgumentParser('training')
     parser.add_argument('-d', '--data_path', default='data/modelnet40_normal_resampled/', type=str)
     parser.add_argument('-c', '--checkpoint', type=str, metavar='PATH',
@@ -44,13 +37,12 @@ def parse_args():
 def main():
     args = parse_args()
     if args.checkpoint is None:
-        time_stamp =str(datetime.datetime.now().strftime('-%Y%m%d%H%M%S'))
+        time_stamp = str(datetime.datetime.now().strftime('-%Y%m%d%H%M%S'))
         args.checkpoint = 'logs/' + args.model + time_stamp
     if not os.path.isdir(args.checkpoint):
         mkdir_p(args.checkpoint)
-        # saving args to txt
         save_args(args)
-        logger = Logger(os.path.join(args.checkpoint, 'log.txt'), title="ModelNet"+args.model)
+        logger = Logger(os.path.join(args.checkpoint, 'log.txt'), title="ModelNet" + args.model)
         logger.set_names(["Epoch", 'Learning-Rate', 'Train-Loss', 'Train-acc', 'Valid-Loss', 'Valid-acc'])
 
     print('==> Preparing data..')
@@ -89,11 +81,10 @@ def main():
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
     for epoch in range(start_epoch, args.epoch):
         print('Epoch(%d/%s) Learning Rate %s:' % (epoch + 1, args.epoch, optimizer.param_groups[0]['lr']))
-        # train_out {"loss", "acc", "time"}
-        train_out = train(net, trainDataLoader, optimizer, criterion, device)
+        train_out = train(net, trainDataLoader, optimizer, criterion, device)  # {"loss", "acc", "time"}
         test_out = validate(net, testDataLoader, criterion, device)
         scheduler.step()
-        is_best =True if test_out["acc"]>best_acc else False
+        is_best = True if test_out["acc"] > best_acc else False
         save_model(net, epoch, path=args.checkpoint, acc=test_out["acc"], is_best=is_best)
         logger.append(epoch, [optimizer.param_groups[0]['lr'],
                               train_out["loss"], train_out["acc"],
