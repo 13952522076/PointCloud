@@ -131,6 +131,8 @@ def train(net, trainloader, optimizer, criterion, device):
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (0 / (batch_idx + 1), 100. * 0 / 100, 0, 0))
 
+    print(f"points shape: {points.shape} | targets shape: {targets.shape}")
+    print(f"targets: {targets}")
     time_cost = int((datetime.datetime.now() - time_cost).total_seconds())
     return {
         "loss": 0,
