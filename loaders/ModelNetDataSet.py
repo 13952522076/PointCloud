@@ -183,7 +183,7 @@ class ModelNet40DataSet(Dataset):
             class_temp = file.split("_")[0]
             file_data = np.genfromtxt(os.path.join(self.root, class_temp, file + '.txt'),
                                       delimiter=',').astype(np.float32)
-            file_target = self.class_names.index(class_temp).astype(np.int32)
+            file_target = np.int32(self.class_names.index(class_temp))
             if self.use_uniform_sample:  # which indicates the farthest point sampling
                 file_data = farthest_point_sample(file_data, self.points)
             else:
