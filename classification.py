@@ -58,9 +58,9 @@ def main():
     train_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='train', process_data=args.process_data)
     test_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='test', process_data=args.process_data)
     trainDataLoader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
-                                                  num_workers=16, drop_last=True)
+                                                  num_workers=32, drop_last=True)
     testDataLoader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False,
-                                                 num_workers=16)
+                                                 num_workers=32)
 
     # Model
     print('==> Building model..')
@@ -153,7 +153,7 @@ def validate(net, testloader, criterion, device):
             points[:, :, 0:3] = provider.shift_point_cloud(points[:, :, 0:3])
             points = torch.Tensor(points)
             points = points.transpose(2, 1)
-            points, targets = points.to(device), targets.to(device)
+            points, targets = points.to(device), targets.to(device).long()
             out = net(points)
             loss = criterion(out, targets)
             test_loss += loss.item()
