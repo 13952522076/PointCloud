@@ -1,7 +1,7 @@
 """
 Re-organized codes for point cloud training
 Usage:
-pthon classification.py --use_normals --use_uniform_sample
+python classification.py --use_normals --use_uniform_sample
 """
 import argparse
 import os
@@ -36,6 +36,7 @@ def parse_args():
     parser.add_argument('--optimizer', type=str, default='Adam', help='optimizer for training')
     parser.add_argument('--decay_rate', type=float, default=1e-4, help='decay rate')
     parser.add_argument('--use_normals', action='store_true', default=False, help='use normals besides x,y,z')
+    parser.add_argument('--process_data', action='store_true', default=False, help='save data offline')
     parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampiling')
     return parser.parse_args()
 
