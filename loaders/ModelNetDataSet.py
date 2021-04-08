@@ -138,10 +138,10 @@ class ModelNetDataLoader(Dataset):
         return self._get_item(index)
 
 
-
 class ModelNet40DataSet(Dataset):
     class_num = 40
-    def __init__(self, root, train=True, points=1024, use_uniform_sample=True, process_data=False, ** kwargs):
+
+    def __init__(self, root, train=True, points=1024, use_uniform_sample=True, process_data=False, **kwargs):
         """
         :param root: root path to dataset, e.g. data/modelnet40_normal_resampled/
         :param train: train or test, default True
@@ -151,12 +151,12 @@ class ModelNet40DataSet(Dataset):
         :param kwargs:
         """
         self.root = root
-        class_names_file = "modelnet%s_shape_names.txt"%(self.class_num)
-        self.class_names = [line.rstrip() for line in open(os.path.join(self.root, class_names_file ))]
+        class_names_file = "modelnet%s_shape_names.txt" % (self.class_num)
+        self.class_names = [line.rstrip() for line in open(os.path.join(self.root, class_names_file))]
         self.train = train
         self.use_uniform_sample = use_uniform_sample
         if self.train:
-            self.datafile = "modelnet%s_train.txt"%(self.class_num)
+            self.datafile = "modelnet%s_train.txt" % (self.class_num)
         else:
             self.datafile = "modelnet%s_test.txt" % (self.class_num)
         if process_data:
@@ -166,12 +166,34 @@ class ModelNet40DataSet(Dataset):
     # def __len__(self): return None
 
     def _process_data(self):
-        file_names = [line.rstrip() for line in open(os.path.join(self.root, self.datafile ))]
-        for file in file_names:
+        X = {'train': [], 'test': []}  # X indicates the data points
+        y = {'train': [], 'test': []}  # y indicates the targets
+        X_train, y_train = self._process_data_subset(split="train")
+        X_test, y_test = self._process_data_subset(split="test")
+        print(f"Train: {len(X_train)} {len(y_train)} {(X_train[0]).shape}")
+        print(f"Test : {len(X_test)} {len(y_test)} {(X_test[0]).shape}")
+
+    def _process_data_subset(self, split = "train"):
+        points = []
+        targets = []
+        datafile = "modelnet%s_%s.txt" % (self.class_num, split)
+        file_names = [line.rstrip() for line in open(os.path.join(self.root, datafile))]
+        for i in tqdm(range(len(file_names))):
+            file = file_names[i]
             class_temp = file.split("_")[0]
-            file_data = np.genfromtxt(os.path.join(self.root, class_temp, file+'.txt'), delimiter=',')
-            file_target =  self.class_names.index(class_temp)
-            print(f"data shape: {file_data.shape} data class: {file_target}")
+            file_data = np.genfromtxt(os.path.join(self.root, class_temp, file + '.txt'),
+                                      delimiter=',').astype(np.float32)
+            file_target = self.class_names.index(class_temp).astype(np.int32)
+            if self.use_uniform_sample:  # which indicates the farthest point sampling
+                file_data = farthest_point_sample(file_data, self.points)
+            else:
+                file_data = file_data[0:self.points, :]
+            points.append(file_data)
+            targets.append(file_target)
+        return points, targets
+
+
+
 
 if __name__ == '__main__':
     modelnet40 = ModelNet40DataSet(root="/work/xm0036/data/modelnet40_normal_resampled",
