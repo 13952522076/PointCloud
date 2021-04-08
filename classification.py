@@ -16,6 +16,7 @@ import models as models
 from utils import Logger, mkdir_p, progress_bar, save_model, save_args
 from loaders.ModelNetDataLoader import ModelNetDataLoader
 from losses import PointNetLoss, CELoss
+import provider
 
 model_names = sorted(name for name in models.__dict__
                      if callable(models.__dict__[name]))
@@ -109,9 +110,15 @@ def train(net, trainloader, optimizer, criterion, device):
     correct = 0
     total = 0
     time_cost = datetime.datetime.now()
-    for batch_idx, (inputs, targets) in enumerate(trainloader):
-        inputs, targets = inputs.to(device), targets.to(device)
-        out = net(inputs)
+    for batch_idx, (points, targets) in enumerate(trainloader):
+        points = points.data.numpy()
+        points = provider.random_point_dropout(points)
+        points[:, :, 0:3] = provider.random_scale_point_cloud(points[:, :, 0:3])
+        points[:, :, 0:3] = provider.shift_point_cloud(points[:, :, 0:3])
+        points = torch.Tensor(points)
+        points = points.transpose(2, 1)
+        points, targets = points.to(device), targets.to(device)
+        out = net(points)
         loss = criterion(out, targets)
         loss.backward()
         optimizer.step()
@@ -139,9 +146,15 @@ def validate(net, testloader, criterion, device):
     total = 0
     time_cost = datetime.datetime.now()
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(testloader):
-            inputs, targets = inputs.to(device), targets.to(device)
-            out = net(inputs)
+        for batch_idx, (points, targets) in enumerate(testloader):
+            points = points.data.numpy()
+            points = provider.random_point_dropout(points)
+            points[:, :, 0:3] = provider.random_scale_point_cloud(points[:, :, 0:3])
+            points[:, :, 0:3] = provider.shift_point_cloud(points[:, :, 0:3])
+            points = torch.Tensor(points)
+            points = points.transpose(2, 1)
+            points, targets = points.to(device), targets.to(device)
+            out = net(points)
             loss = criterion(out, targets)
             test_loss += loss.item()
             _, predicted = out["logits"].max(1)
