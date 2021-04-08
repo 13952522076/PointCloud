@@ -117,7 +117,7 @@ def train(net, trainloader, optimizer, criterion, device):
         points[:, :, 0:3] = provider.shift_point_cloud(points[:, :, 0:3])
         points = torch.Tensor(points)
         points = points.transpose(2, 1)
-        points, targets = points.to(device), targets.to(device)
+        points, targets = points.to(device), targets.to(device).long()
         out = net(points)
         loss = criterion(out, targets)
         loss.backward()
