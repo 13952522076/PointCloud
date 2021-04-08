@@ -51,7 +51,7 @@ def main():
         mkdir_p(args.checkpoint)
         save_args(args)
         logger = Logger(os.path.join(args.checkpoint, 'log.txt'), title="ModelNet" + args.model)
-        logger.set_names(["Epoch", 'Learning-Rate', 'Train-Loss', 'Train-acc', 'Valid-Loss', 'Valid-acc'])
+        logger.set_names(["Epoch-Num", 'Learning-Rate', 'Train-Loss', 'Train-acc', 'Valid-Loss', 'Valid-acc'])
 
     print('==> Preparing data..')
     # loader requires args: use_uniform_sample, num_points, use_uniform_sample, use_normals, num_classes
