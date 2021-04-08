@@ -168,8 +168,8 @@ class ModelNet40DataSet(Dataset):
     def _process_data(self):
         file_names = [line.rstrip() for line in open(os.path.join(self.root, self.datafile ))]
         for file in file_names:
-            class_temp = file.split("_")
-            file_data = np.genfromtxt(os.path.join(self.root,class_temp,file), delimiter=',')
+            class_temp = file.split("_")[0]
+            file_data = np.genfromtxt(os.path.join(self.root, class_temp, file), delimiter=',')
             print(file_data.shape)
 
 if __name__ == '__main__':
