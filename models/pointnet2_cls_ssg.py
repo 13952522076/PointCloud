@@ -4,7 +4,7 @@ from .pointnet2_utils import PointNetSetAbstraction
 
 
 class PointNet2SSG(nn.Module):
-    def __init__(self,num_class, normal_channel=True):
+    def __init__(self,num_classes, normal_channel=True, ** kwargs):
         super(PointNet2SSG, self).__init__()
         in_channel = 6 if normal_channel else 3
         self.normal_channel = normal_channel
@@ -17,7 +17,7 @@ class PointNet2SSG(nn.Module):
         self.fc2 = nn.Linear(512, 256)
         self.bn2 = nn.BatchNorm1d(256)
         self.drop2 = nn.Dropout(0.4)
-        self.fc3 = nn.Linear(256, num_class)
+        self.fc3 = nn.Linear(256, num_classes)
 
     def forward(self, xyz):
         B, _, _ = xyz.shape
