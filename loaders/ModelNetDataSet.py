@@ -120,3 +120,10 @@ if __name__ == '__main__':
                                    train=False, points=1024, use_uniform_sample=True, process_data=True)
     print(modelnet40_train_dataset.__len__())
     print(modelnet40_test_dataset.__len__())
+
+    modelnet40_train_dataset = ModelNet40DataSet(root="/work/xm0036/data/modelnet40_normal_resampled",
+                                                 train=True, points=1024, use_uniform_sample=False, process_data=True)
+    modelnet40_test_dataset = ModelNet40DataSet(root="/work/xm0036/data/modelnet40_normal_resampled",
+                                                train=False, points=1024, use_uniform_sample=False, process_data=True)
+    print(modelnet40_train_dataset.__len__())
+    print(modelnet40_test_dataset.__len__())
