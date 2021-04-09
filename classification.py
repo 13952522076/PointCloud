@@ -76,8 +76,8 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(device)
     criterion = CELoss()
-    if args.model == "PointNet":
-        criterion = PointNetLoss()
+    # if args.model == "PointNet":
+    #     criterion = PointNetLoss()
     net = net.to(device)
     criterion = criterion.to(device)
     if device == 'cuda':
