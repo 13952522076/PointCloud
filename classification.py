@@ -103,7 +103,7 @@ def main():
                               train_out["loss"], train_out["acc"],
                               test_out["loss"], test_out["acc"]])
         print(f"Training(loss: {train_out['loss']} acc:{train_out['acc']}% time:{train_out['time']}s) | "
-              f"Testing(loss: {test_out['loss']} acc:{test_out['acc']}% time:{test_out['time']}s)")
+              f"Testing(loss: {test_out['loss']} acc:{test_out['acc']}% time:{test_out['time']}s) \n\n")
     logger.close()
 
 
@@ -121,6 +121,7 @@ def train(net, trainloader, optimizer, criterion, device):
         points = torch.Tensor(points)
         points = points.transpose(2, 1)
         points, targets = points.to(device), targets.to(device).long()
+        optimizer.zero_grad()
         out = net(points)
         loss = criterion(out, targets)
         loss.backward()
