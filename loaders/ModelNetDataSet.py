@@ -164,7 +164,13 @@ class ModelNet40DataSet(Dataset):
         temp_uniform = "FPS" if self.use_uniform_sample else "RND"
         self.processed_file = "modelnet%s_%s_%spts_%s.npz" % (self.class_num, temp_Train, self.points, temp_uniform)
         if process_data:
+            print(f"===> processing data: {self.processed_file}")
             self._process_data()
+
+        # now load the picked numpy arrays
+        processed_data = np.load(self.processed_file)
+        self.data = processed_data["data"]
+        self.targets = processed_data["targets"]
 
     # def __getitem__(self, index): return None
     # def __len__(self): return None
@@ -187,7 +193,7 @@ class ModelNet40DataSet(Dataset):
             points.append(file_data)
             targets.append(file_target)
         # return points, targets
-        np.savez_compressed(os.path.join(self.root, self.processed_file),data=points,target=targets)
+        np.savez_compressed(os.path.join(self.root, self.processed_file),data=points,targets=targets)
 
 
 if __name__ == '__main__':
