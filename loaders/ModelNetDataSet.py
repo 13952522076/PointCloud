@@ -160,6 +160,9 @@ class ModelNet40DataSet(Dataset):
             self.datafile = "modelnet%s_train.txt" % (self.class_num)
         else:
             self.datafile = "modelnet%s_test.txt" % (self.class_num)
+        temp_Train = "train" if self.train else "test"
+        temp_uniform = "FPS" if self.use_uniform_sample else "RND"
+        self.processed_file = "modelnet%s_%s_%spts_%s.npz" % (self.class_num, temp_Train, self.points, temp_uniform)
         if process_data:
             self._process_data()
 
@@ -167,18 +170,9 @@ class ModelNet40DataSet(Dataset):
     # def __len__(self): return None
 
     def _process_data(self):
-        X = {'train': [], 'test': []}  # X indicates the data points
-        y = {'train': [], 'test': []}  # y indicates the targets
-        X_train, y_train = self._process_data_subset(split="train")
-        X_test, y_test = self._process_data_subset(split="test")
-        print(f"Train: {len(X_train)} {len(y_train)} {(X_train[0]).shape}")
-        print(f"Test : {len(X_test)} {len(y_test)} {(X_test[0]).shape}")
-
-    def _process_data_subset(self, split = "train"):
         points = []
         targets = []
-        datafile = "modelnet%s_%s.txt" % (self.class_num, split)
-        file_names = [line.rstrip() for line in open(os.path.join(self.root, datafile))]
+        file_names = [line.rstrip() for line in open(os.path.join(self.root, self.datafile))]
         # for i in tqdm(range(len(file_names))):
         for i in tqdm(range(10)):
             file = file_names[i]
@@ -192,9 +186,8 @@ class ModelNet40DataSet(Dataset):
                 file_data = file_data[0:self.points, :]
             points.append(file_data)
             targets.append(file_target)
-        return points, targets
-
-
+        # return points, targets
+        np.savez_compressed(os.path.join(self.root, self.processed_file),data=points,target=targets)
 
 
 if __name__ == '__main__':
