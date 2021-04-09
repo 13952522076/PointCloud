@@ -129,7 +129,6 @@ def train(net, trainloader, optimizer, criterion, device):
         train_loss += loss.item()
         _, predicted = out["logits"].max(1)
         total += targets.size(0)
-        total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
