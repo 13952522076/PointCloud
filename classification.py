@@ -114,6 +114,7 @@ def train(net, trainloader, optimizer, criterion, device):
     total = 0
     time_cost = datetime.datetime.now()
     for batch_idx, (points, targets) in enumerate(trainloader):
+        points = points.data.numpy()
         points = provider.random_point_dropout(points)
         points[:, :, 0:3] = provider.random_scale_point_cloud(points[:, :, 0:3])
         points[:, :, 0:3] = provider.shift_point_cloud(points[:, :, 0:3])
@@ -149,6 +150,8 @@ def validate(net, testloader, criterion, device):
     time_cost = datetime.datetime.now()
     with torch.no_grad():
         for batch_idx, (points, targets) in enumerate(testloader):
+            points = points.data.numpy()
+            points = torch.Tensor(points)
             points = points.transpose(2, 1)
             points, targets = points.to(device), targets.to(device).long()
             out = net(points)
