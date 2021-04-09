@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from point_tansformer_utils import index_points, square_distance, PointNetSetAbstraction
+from .point_tansformer_utils import index_points, square_distance, PointNetSetAbstraction
 import torch.nn.functional as F
 import numpy as np
 
