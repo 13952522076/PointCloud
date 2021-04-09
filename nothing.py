@@ -14,7 +14,8 @@ import torch.utils.data
 import torch.utils.data.distributed
 import models as models
 from utils import Logger, mkdir_p, progress_bar, save_model, save_args
-from loaders.ModelNetDataLoader import ModelNetDataLoader
+from loaders import ModelNet40DataSet
+
 from losses import PointNetLoss, CELoss
 import provider
 
@@ -54,13 +55,17 @@ def main():
         logger.set_names(["Epoch-Num", 'Learning-Rate', 'Train-Loss', 'Train-acc', 'Valid-Loss', 'Valid-acc'])
 
     print('==> Preparing data..')
-    # loader requires args: use_uniform_sample, num_points, use_uniform_sample, use_normals, num_classes
-    train_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='train', process_data=args.process_data)
-    test_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='test', process_data=args.process_data)
+    # root, train=True, points=1024, use_uniform_sample=True, process_data=False,
+    train_dataset = ModelNet40DataSet(root=args.data_path, train=True, points=args.num_points,
+                                      use_uniform_sample=args.use_uniform_sample,
+                                      process_data=args.process_data)
+    test_dataset = ModelNet40DataSet(root=args.data_path, train=False, points=args.num_points,
+                                      use_uniform_sample=args.use_uniform_sample,
+                                      process_data=args.process_data)
     trainDataLoader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
-                                                  num_workers=32, drop_last=True)
+                                                  num_workers=8, drop_last=True)
     testDataLoader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False,
-                                                 num_workers=32)
+                                                 num_workers=8)
 
     # Model
     print('==> Building model..')
@@ -156,20 +161,20 @@ def validate(net, testloader, criterion, device):
             points = torch.Tensor(points)
             points = points.transpose(2, 1)
             points, targets = points.to(device), targets.to(device).long()
-            out = net(points)
-            loss = criterion(out, targets)
-            test_loss += loss.item()
-            _, predicted = out["logits"].max(1)
-            total += targets.size(0)
-            correct += predicted.eq(targets).sum().item()
+            # out = net(points)
+            # loss = criterion(out, targets)
+            # test_loss += loss.item()
+            # _, predicted = out["logits"].max(1)
+            # total += targets.size(0)
+            # correct += predicted.eq(targets).sum().item()
 
             progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                         % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
+                         % (0 / (batch_idx + 1), 100. * 0 / 100, 0, 0))
 
     time_cost = int((datetime.datetime.now() - time_cost).total_seconds())
     return {
-        "loss": float("%.3f" % (test_loss / (batch_idx + 1))),
-        "acc": float("%.3f" % (100. * correct / total)),
+        "loss": float("%.3f" % (0 / (100 + 1))),
+        "acc": float("%.3f" % (100. * 0 / 100)),
         "time": time_cost
     }
 
