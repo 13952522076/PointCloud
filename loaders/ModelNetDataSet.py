@@ -168,7 +168,7 @@ class ModelNet40DataSet(Dataset):
             self._process_data()
 
         # now load the picked numpy arrays
-        processed_data = np.load(self.processed_file)
+        processed_data = np.load(os.path.join(self.root, self.processed_file))
         self.data = processed_data["data"]
         self.targets = processed_data["targets"]
 
