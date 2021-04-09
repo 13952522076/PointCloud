@@ -98,7 +98,8 @@ class ModelNet40DataSet(Dataset):
         file_names = [line.rstrip() for line in open(os.path.join(self.root, self.datafile))]
         for i in tqdm(range(len(file_names))):
             file = file_names[i]
-            class_temp = file.split("_")[0]
+            # class_temp = file.split("_")[0]
+            class_temp = file[:-5]
             file_data = np.genfromtxt(os.path.join(self.root, class_temp, file + '.txt'),
                                       delimiter=',').astype(np.float32)
             file_target = np.int32(self.class_names.index(class_temp))
