@@ -14,7 +14,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import models as models
 from utils import Logger, mkdir_p, progress_bar, save_model, save_args
-from loaders.ModelNetDataLoader import ModelNetDataLoader
+from loaders import ModelNet40DataSet
 from losses import PointNetLoss, CELoss
 import provider
 
@@ -54,9 +54,12 @@ def main():
         logger.set_names(["Epoch-Num", 'Learning-Rate', 'Train-Loss', 'Train-acc', 'Valid-Loss', 'Valid-acc'])
 
     print('==> Preparing data..')
-    # loader requires args: use_uniform_sample, num_points, use_uniform_sample, use_normals, num_classes
-    train_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='train', process_data=args.process_data)
-    test_dataset = ModelNetDataLoader(root=args.data_path, args=args, split='test', process_data=args.process_data)
+    train_dataset = ModelNet40DataSet(root=args.data_path, train=True, points=args.num_points,
+                                      use_uniform_sample=args.use_uniform_sample,
+                                      process_data=args.process_data)
+    test_dataset = ModelNet40DataSet(root=args.data_path, train=False, points=args.num_points,
+                                     use_uniform_sample=args.use_uniform_sample,
+                                     process_data=args.process_data)
     trainDataLoader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
                                                   num_workers=32, drop_last=True)
     testDataLoader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False,
