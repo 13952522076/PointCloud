@@ -102,8 +102,8 @@ def main():
         logger.append([epoch, optimizer.param_groups[0]['lr'],
                               train_out["loss"], train_out["acc"],
                               test_out["loss"], test_out["acc"]])
-        print(f"Training(loss: {train_out['loss']} acc:{train_out['acc']}% time:{train_out['time']}s) | "
-              f"Testing(loss: {test_out['loss']} acc:{test_out['acc']}% time:{test_out['time']}s) \n\n")
+        print(f"Training loss:{train_out['loss']} acc:{train_out['acc']}% time:{train_out['time']}s) | "
+              f"Testing loss:{test_out['loss']} acc:{test_out['acc']}% time:{test_out['time']}s) \n\n")
     logger.close()
 
 
