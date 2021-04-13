@@ -192,6 +192,7 @@ class Pointsformer(nn.Module):
 
 
     def forward(self, x):
+        x = x.transpose(1,2)
         # x shape: [b, n, d]
         coords = x[:,:,:3]
         out = self.linear(x)
@@ -265,7 +266,7 @@ if __name__ == '__main__':
 
     print("===> testing Pointsformer ...")
     pointsformer = Pointsformer(reducer=4)
-    data = torch.rand(2, 1024, 6)
+    data = torch.rand(2, 6, 1024)
     out = pointsformer(data)
     print(out.shape)
 
