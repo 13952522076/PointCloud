@@ -9,20 +9,12 @@ from torch.autograd import Variable
 import numpy as np
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
-
-
-class PreNorm(nn.Module):
-    def __init__(self, dim, fn):
-        super(PreNorm).__init__()
-        self.norm = nn.LayerNorm(dim)
-        self.fn = fn
-
-    def forward(self, x, **kwargs):
-        return self.fn(self.norm(x), **kwargs)
+from point_tansformer_utils import farthest_point_sample, index_points, square_distance
+import math
 
 
 class FeedForward(nn.Module):
-    def __init__(self, dim, hidden_dim,):
+    def __init__(self, dim, hidden_dim, ):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(dim, hidden_dim),
@@ -38,6 +30,12 @@ class FeedForward(nn.Module):
 
 class Attention(nn.Module):
     def __init__(self, dim, heads=8, dim_head=64):
+        """
+        Implement self-attention layer
+        :param dim: input data dim
+        :param heads: attention heads
+        :param dim_head: dimension in each head
+        """
         super().__init__()
         inner_dim = dim_head * heads
         project_out = not (heads == 1 and dim_head == dim)
@@ -48,62 +46,191 @@ class Attention(nn.Module):
         self.to_out = nn.Linear(inner_dim, dim) if project_out else nn.Identity()
 
     def forward(self, x):
-        # x shape: [b, n, d] batch = batch*fps, n is neighbors, d is dimension.
-        b, n, _, h = *x.shape, self.heads
+        """
+        :input x: [b batch, p points, k nerigbhors, d dimension]
+        :return: [b batch, p points, k nerigbhors, d dimension]
+        """
+        b, k, n, _, h = *x.shape, self.heads
         qkv = self.to_qkv(x).chunk(3, dim=-1)
-        q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h=h), qkv)
-        dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale
+        q, k, v = map(lambda t: rearrange(t, 'b k n (h d) -> b k h n d', h=h), qkv)
+        dots = einsum('b k h i d, b k h j d -> b k h i j', q, k) * self.scale
         attn = self.attend(dots)
-        out = einsum('b h i j, b h j d -> b h i d', attn, v)
-        out = rearrange(out, 'b h n d -> b n (h d)')
-        return self.to_out(out)
+        out = einsum('b k h i j, b k h j d -> b k h i d', attn, v)
+        out = rearrange(out, 'b k h n d -> b k n (h d)')
+        out = self.to_out(out)
+        return out
 
 
 class TransformerBlock(nn.Module):
-    def __init__(self,dim, **kwargs):
+    def __init__(self, dim, heads=8, dim_head=64, **kwargs):
+        """
+        Building Transformer block
+        :param dim: input data dimension
+        :param heads: heads number
+        :param dim_head: dimension in each head
+        :param kwargs:
+        """
         super(TransformerBlock, self).__init__()
-        self.ln1 = nn.LayerNorm(dim)
-        self.ln2 = nn.LayerNorm(dim)
-        self.attention = Attention()
-        self.ffn = FeedForward()
+        self.norm1 = nn.LayerNorm(dim)
+        self.norm2 = nn.LayerNorm(dim)
+        self.attention = Attention(dim=dim, heads=heads, dim_head=dim_head)
+        self.ffn = FeedForward(dim=dim, hidden_dim=dim)  # modify hidden_dim accordingly, e.g, 2*dim or dim/2.
 
     def forward(self, x):
-        # x should follow the shape of [b, p, k, d]
-        b, p, k, d = x.shape  # batch, p fps (farthest points sampling), k neighbors, d dimnesion
-
-        return x
+        """
+        :input x: [b batch, p points, k nerigbhors, d dimension]
+        :return: [b batch, p points, k nerigbhors, d dimension]
+        """
+        att = self.attention(self.norm1(x))
+        att = att + x
+        out = self.ffn(self.norm2(att))
+        out = out + att
+        return out
 
 
 class TransformerDown(nn.Module):
-    def __init__(self, **kwargs):
+    def __init__(self, in_dim, out_dim, hid_dim=0, **kwargs):
+        """
+        linearly gather neigbors to sampled points by points + offsets by attentional weights
+        :param in_dim: input data dimension
+        :param out_dim: output data dimension
+        :param hid_dim: projection dimension for k, q, if 0, no projection
+        :param kwargs:
+        """
         super(TransformerDown, self).__init__()
+        self.k = nn.Linear(in_dim, hid_dim) if hid_dim != 0 else nn.Identity()
+        self.q = nn.Linear(in_dim, hid_dim) if hid_dim != 0 else nn.Identity()
+        self.scale = (hid_dim ** -0.5) if hid_dim != 0 else (in_dim ** -0.5)
+        self.v = nn.Linear(in_dim, out_dim)
+        self.m = nn.Linear(in_dim, out_dim)
+
+    def forward(self, x, y):
+        """
+        :input x: farthest points sampling [b batch, p points, 1, d dimension]
+        :input y: corresponding neighbors  [b batch, p points, k neigbors, d dimension]
+        :return: [b batch, p points, k nerigbhors, d dimension]
+        """
+        # x: farthest points sampling   [b, p, 1, d]
+        # y: corresponding neighbors    [b, p, k, d]
+        # return gather data [b, p, 1, out_dim]
+        out = self.m(x)
+        q = self.q(x)
+        k = self.k(y)
+        v = self.v(y)
+        dots = einsum('b p k d, b p i d -> b p k i', k, q) * self.scale  # i=1 actually
+        weights = dots.softmax(dim=-2)
+        offset = (weights * v).sum(dim=-2, keepdim=True)
+        out = out + offset
+        out = F.relu(out, inplace=True)
+        return out
+
+
+class FPSKNNGrouper(nn.Module):
+    def __init__(self, points, knn=16, **kwargs):
+        """
+        Given a list of unordered data, return the fps neighbors (first neighbor is the sampled point).
+        :param points: number of sampled data points
+        :param knn: k-neighbors for each sampled point
+        :param kwargs:
+        """
+        super(FPSKNNGrouper, self).__init__()
+        self.points = points  # points number of Farthest Points Sampling
+        self.knn = knn  # number of k neighbors
 
     def forward(self, x):
-        return x
+        """
+        :param x: input data points corrdications [b, n, 3+c] first 3 dims are coordinates
+        :return: grouped_points [b,points, knn, 3+c]
+        !!! Notice that: the sampled points = grouped_points[:,:,0,:]
+        """
+        sampeld_points = index_points(x, farthest_point_sample(x[:, :, :3], self.points))  # [b,points, 3]
+        distances = square_distance(sampeld_points[:, :, :3], x[:, :, :3])  # including sampled points self.
+        knn_idx = distances.argsort()[:, :, :self.knn]
+        grouped_points = index_points(x, knn_idx)  # [b,points, knn, 3+c]
+        return grouped_points
 
 
 class Pointsformer(nn.Module):
-    def __init__(self, num_classes=40, use_normals=True,
-                 blocks=[1, 2, 1, 1], embed_channel=48, k_neighbors=32,
-                 heads=8, expansion=2, reducer=2, **kwargs):
+    def __init__(self, num_classes=40, use_normals=True, points=512,
+                 blocks=[1, 2, 1, 1], embed_channel=64, k_neighbors=[64, 32, 16, 16],
+                 heads=8, dim_head=32, expansion=2, reducer=2, **kwargs):
         super(Pointsformer, self).__init__()
+        self.stages = len(blocks)
         self.num_classes = num_classes
         channel = 6 if use_normals else 3
         self.linear = nn.Linear(channel, embed_channel)
-        transformer_blocks = []
-        for block_num in blocks:
+        self.transformer_stages = nn.ModuleList()
+        self.transformer_downs = nn.ModuleList()
+        self.groupers = nn.ModuleList()
+        for stage, block_num in enumerate(blocks):
+            # for appending transformer blocks
+            factor = expansion ** stage
+            factor_d = int(math.sqrt(factor))
+            factor_h = factor // factor_d
+            transformer_blocks = []
             for _ in range(block_num):
-                transformer_blocks.append(TransformerBlock())
-            transformer_blocks.append(TransformerDown())
+                transformer_blocks.append(
+                    TransformerBlock(dim=embed_channel * factor, heads=heads * factor_h, dim_head=dim_head * factor_d)
+                )
+            transformer_blocks = nn.Sequential(*transformer_blocks)
+            self.transformer_stages.append(transformer_blocks)
+
+            # for appending transformer groups
+            knn = k_neighbors[stage]
+            self.groupers.append(FPSKNNGrouper(points=points // (reducer ** stage), knn=knn))
+
+            # for appending transformer downs
+            self.transformer_downs.append(
+                TransformerDown(in_dim=embed_channel * factor, out_dim=embed_channel * factor * expansion,
+                                hid_dim=embed_channel)
+            )
+
+        self.classify = nn.Linear(embed_channel * factor * expansion, num_classes)
 
     def forward(self, x):
-        return None
+        # x shape: [b, n, d]
+        out = self.linear(x)
+        for i in range(self.stages):
+            out = self.groupers[i](out)
+            print(out.shape)
+        return out
 
 
 if __name__ == '__main__':
-    print("===> testing mode ...")
-    data = torch.rand(10, 6, 128)
+    print("===> testing attention module ...")
+    data = torch.rand(32, 64, 6, 128)  # [b batch, p points, k nerigbhors, d dimension]
     model = Attention(128)
     out = model(data)
     print(out.shape)
-    # print(f"x shape is: {out['logits'].shape} | trans_feat shape is: {out['trans_feat'].shape}")
+
+    print("===> testing TransformerBlock module ...")
+    data = torch.rand(32, 64, 6, 128)  # [b batch, p points, k nerigbhors, d dimension]
+    model = TransformerBlock(128)
+    out = model(data)
+    print(out.shape)
+
+    print("===> testing TransformerDown module ...")
+    x = torch.rand(32, 64, 1, 128)  # [b batch, p points, k nerigbhors, d dimension]
+    y = torch.rand(32, 64, 16, 128)  # [b batch, p points, k nerigbhors, d dimension]
+    model = TransformerDown(in_dim=128, out_dim=256, hid_dim=0)
+    out = model(x, y)
+    print(out.shape)
+
+    print("===> testing farthest_point_sample function random or consistent ...")
+    data = torch.rand(10, 64, 3)
+    out1 = farthest_point_sample(data, 5)
+    out2 = farthest_point_sample(data, 5)
+    print(out1 == out2)
+
+    print("===> testing FPSKNNGrouper function ...")
+    b, n, points, knn = 4, 256, 128, 16
+    data = torch.rand(b, n, 3)
+    grouper = FPSKNNGrouper(points=points, knn=knn)
+    grouped = grouper(data)
+    print(grouped.shape)
+
+    print("===> testing Pointsformer ...")
+    pointsformer = Pointsformer()
+    data = torch.rand(2, 1024, 6)
+    out = pointsformer(data)
+    print(out.shape)
