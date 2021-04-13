@@ -11,6 +11,7 @@ from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 from point_tansformer_utils import farthest_point_sample, index_points, square_distance
 import math
+from typing import Any
 
 
 class FeedForward(nn.Module):
@@ -153,7 +154,7 @@ class FPSKNNGrouper(nn.Module):
 class Pointsformer(nn.Module):
     def __init__(self, num_classes=40, use_normals=True, points=512,
                  blocks=[1, 2, 1, 1], embed_channel=64, k_neighbors=[64, 32, 16, 16],
-                 heads=8, dim_head=32, expansion=2, reducer=2, **kwargs):
+                 heads=8, dim_head=32, expansion=2, reducer=2, pool="avg", **kwargs):
         super(Pointsformer, self).__init__()
         self.stages = len(blocks)
         self.num_classes = num_classes
@@ -185,15 +186,47 @@ class Pointsformer(nn.Module):
                                 hid_dim=embed_channel)
             )
 
+        self.pool = nn.AdaptiveAvgPool1d(1) if pool=="avg" else nn.AdaptiveMaxPool1d(1)
         self.classify = nn.Linear(embed_channel * factor * expansion, num_classes)
+
 
     def forward(self, x):
         # x shape: [b, n, d]
+        coords = x[:,:,:3]
         out = self.linear(x)
         for i in range(self.stages):
-            out = self.groupers[i](out)
-            print(out.shape)
+            out = torch.cat([coords, out], dim=-1)
+            out = self.groupers[i](out)  # [b,p,k,3+c]
+            coords, features = out[:,:,:,:3], out[:,:,:, 3:]
+            features = self.transformer_stages[i](features)
+            sampled_points = (features[:, :, 0, :]).unsqueeze(dim=-2)
+            coords = coords[:,:,0,:]
+            out = self.transformer_downs[i](sampled_points, features).squeeze(dim=-2)
+
+        # now, out shape is [b, sampled points, d]
+        out = self.pool(out.transpose(1,2)).squeeze(dim=-1)
+        out = self.classify(out)
         return out
+
+def pointsformerA(num_classes=40, **kwargs: Any) -> Pointsformer:
+    return Pointsformer(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, **kwargs)
+
+def pointsformerA2(num_classes=40, **kwargs: Any) -> Pointsformer:
+    return Pointsformer(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=2, **kwargs)
+
+def pointsformerB(num_classes=40, **kwargs: Any) -> Pointsformer:
+    return Pointsformer(num_classes=num_classes, blocks=[2, 2, 2, 2], reducer=4, **kwargs)
+
+def pointsformerB2(num_classes=40, **kwargs: Any) -> Pointsformer:
+    return Pointsformer(num_classes=num_classes, blocks=[2, 2, 2, 2], reducer=2, **kwargs)
+
+def pointsformerC(num_classes=40, **kwargs: Any) -> Pointsformer:
+    return Pointsformer(num_classes=num_classes, blocks=[3, 4, 6, 3], reducer=4, **kwargs)
+
+def pointsformerC2(num_classes=40, **kwargs: Any) -> Pointsformer:
+    return Pointsformer(num_classes=num_classes, blocks=[3, 4, 6, 3], reducer=2, **kwargs)
+
+
 
 
 if __name__ == '__main__':
@@ -230,7 +263,29 @@ if __name__ == '__main__':
     print(grouped.shape)
 
     print("===> testing Pointsformer ...")
-    pointsformer = Pointsformer()
+    pointsformer = Pointsformer(reducer=4)
     data = torch.rand(2, 1024, 6)
     out = pointsformer(data)
     print(out.shape)
+
+    print("===> testing Pointsformer ...")
+    model = pointsformerA()
+    out = model(data)
+    print(f"   ===> testing pointsformerA Done, out shape {out.shape} ...")
+    model = pointsformerA2()
+    out = model(data)
+    print(f"   ===> testing pointsformerA2 Done, out shape {out.shape} ...")
+    model = pointsformerB()
+    out = model(data)
+    print(f"   ===> testing pointsformerB  Done, out shape {out.shape} ...")
+    model = pointsformerB2()
+    out = model(data)
+    print(f"   ===> testing pointsformerB2 Done, out shape {out.shape} ...")
+    model = pointsformerC()
+    out = model(data)
+    print(f"   ===> testing pointsformerC  Done, out shape {out.shape} ...")
+    model = pointsformerC2()
+    out = model(data)
+    print(f"   ===> testing pointsformerC2 Done, out shape {out.shape} ...")
+
+
