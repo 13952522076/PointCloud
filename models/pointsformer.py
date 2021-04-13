@@ -9,7 +9,7 @@ from torch.autograd import Variable
 import numpy as np
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
-from point_tansformer_utils import farthest_point_sample, index_points, square_distance
+from .point_tansformer_utils import farthest_point_sample, index_points, square_distance
 import math
 from typing import Any
 
