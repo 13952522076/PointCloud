@@ -208,7 +208,9 @@ class Pointsformer(nn.Module):
         # now, out shape is [b, sampled points, d]
         out = self.pool(out.transpose(1,2)).squeeze(dim=-1)
         out = self.classify(out)
-        return out
+        return {
+            "logits": out
+        }
 
 def pointsformerA(num_classes=40, **kwargs: Any) -> Pointsformer:
     return Pointsformer(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, **kwargs)
@@ -268,26 +270,26 @@ if __name__ == '__main__':
     pointsformer = Pointsformer(reducer=4)
     data = torch.rand(2, 6, 1024)
     out = pointsformer(data)
-    print(out.shape)
+    print(out["logits"].shape)
 
     print("===> testing Pointsformer ...")
     model = pointsformerA()
     out = model(data)
-    print(f"   ===> testing pointsformerA Done, out shape {out.shape} ...")
+    print(f"   ===> testing pointsformerA Done, out shape {out['logits'].shape} ...")
     model = pointsformerA2()
     out = model(data)
-    print(f"   ===> testing pointsformerA2 Done, out shape {out.shape} ...")
+    print(f"   ===> testing pointsformerA2 Done, out shape {out['logits'].shape} ...")
     model = pointsformerB()
     out = model(data)
-    print(f"   ===> testing pointsformerB  Done, out shape {out.shape} ...")
+    print(f"   ===> testing pointsformerB  Done, out shape {out['logits'].shape} ...")
     model = pointsformerB2()
     out = model(data)
-    print(f"   ===> testing pointsformerB2 Done, out shape {out.shape} ...")
+    print(f"   ===> testing pointsformerB2 Done, out shape {out['logits'].shape} ...")
     model = pointsformerC()
     out = model(data)
-    print(f"   ===> testing pointsformerC  Done, out shape {out.shape} ...")
+    print(f"   ===> testing pointsformerC  Done, out shape {out['logits'].shape} ...")
     model = pointsformerC2()
     out = model(data)
-    print(f"   ===> testing pointsformerC2 Done, out shape {out.shape} ...")
+    print(f"   ===> testing pointsformerC2 Done, out shape {out['logits'].shape} ...")
 
 
