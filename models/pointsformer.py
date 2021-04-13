@@ -13,6 +13,7 @@ from point_tansformer_utils import farthest_point_sample, index_points, square_d
 import math
 from typing import Any
 
+__all__ = ['pointsformerA',"pointsformerA2", "pointsformerB", "pointsformerB2", "pointsformerC", "pointsformerC2"]
 
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, ):
