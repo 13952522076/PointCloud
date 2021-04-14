@@ -100,10 +100,10 @@ class TransformerDown(nn.Module):
         :param kwargs:
         """
         super(TransformerDown, self).__init__()
-        self.k = nn.Linear(in_dim, hid_dim) if hid_dim != 0 else nn.Identity()
-        self.q = nn.Linear(in_dim, hid_dim) if hid_dim != 0 else nn.Identity()
-        self.scale = (hid_dim ** -0.5) if hid_dim != 0 else (in_dim ** -0.5)
-        self.v = nn.Linear(in_dim, out_dim)
+        # self.k = nn.Linear(in_dim, hid_dim) if hid_dim != 0 else nn.Identity()
+        # self.q = nn.Linear(in_dim, hid_dim) if hid_dim != 0 else nn.Identity()
+        # self.scale = (hid_dim ** -0.5) if hid_dim != 0 else (in_dim ** -0.5)
+        # self.v = nn.Linear(in_dim, out_dim)
         self.m = nn.Linear(in_dim, out_dim)
 
     def forward(self, x, y):
@@ -116,13 +116,13 @@ class TransformerDown(nn.Module):
         # y: corresponding neighbors    [b, p, k, d]
         # return gather data [b, p, 1, out_dim]
         out = self.m(x)
-        q = self.q(x)
-        k = self.k(y)
-        v = self.v(y)
-        dots = einsum('b p k d, b p i d -> b p k i', k, q) * self.scale  # i=1 actually
-        weights = dots.softmax(dim=-2)
-        offset = (weights * v).sum(dim=-2, keepdim=True)
-        out = out + offset
+        # q = self.q(x)
+        # k = self.k(y)
+        # v = self.v(y)
+        # dots = einsum('b p k d, b p i d -> b p k i', k, q) * self.scale  # i=1 actually
+        # weights = dots.softmax(dim=-2)
+        # offset = (weights * v).sum(dim=-2, keepdim=True)
+        # out = out + offset
         out = F.relu(out, inplace=True)
         return out
 
