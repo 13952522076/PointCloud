@@ -1,7 +1,7 @@
 from flops_counter import get_model_complexity_info
 import models as models
 
-model = models.__dict__['Simpler'](num_classes=40)
+model = models.__dict__['Simpler2E'](num_classes=40)
 
 flops, params = get_model_complexity_info(model, 1024, as_strings=False, print_per_layer_stat=False, channel=6)
 print('Flops:  %.3f' % (flops / 1e9))
