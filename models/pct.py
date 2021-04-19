@@ -184,8 +184,9 @@ class PCT(nn.Module):
         self.linear3 = nn.Linear(256, output_channels)
 
     def forward(self, x):
+        x = x.transpose(2,1)
         xyz = x[..., :3]
-        # x = x.permute(0, 2, 1)
+        x = x.permute(0, 2, 1)
         batch_size, _, _ = x.size()
         x = self.relu(self.bn1(self.conv1(x)))  # B, D, N
         x = self.relu(self.bn2(self.conv2(x)))  # B, D, N
