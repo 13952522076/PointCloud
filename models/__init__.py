@@ -9,3 +9,4 @@ from .Simpler2 import Simpler2A, Simpler2B, Simpler2C, Simpler2D, Simpler2E
 from .Simpler3 import Simpler3A
 from .pct import PCT
 from .mlp import MLP_max, MLP_avg
+from .mlp2 import MLP2_max, MLP2_avg
