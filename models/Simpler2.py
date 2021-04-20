@@ -268,6 +268,9 @@ class Simpler2(nn.Module):
 def Simpler2A(num_classes=40, **kwargs: Any) -> Simpler2:
     return Simpler2(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, **kwargs)
 
+def Simpler2Amax(num_classes=40, **kwargs: Any) -> Simpler2:
+    return Simpler2(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, pool="max", **kwargs)
+
 def Simpler2B(num_classes=40, **kwargs: Any) -> Simpler2:
     return Simpler2(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, dim_head=32, **kwargs)
 
@@ -315,6 +318,12 @@ if __name__ == '__main__':
 
     print("===> testing Simpler2A ...")
     pointsformer = Simpler2A()
+    data = torch.rand(2, 6, 1024)
+    out = pointsformer(data)
+    print(out["logits"].shape)
+
+    print("===> testing Simpler2Amax ...")
+    pointsformer = Simpler2Amax()
     data = torch.rand(2, 6, 1024)
     out = pointsformer(data)
     print(out["logits"].shape)
