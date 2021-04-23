@@ -167,10 +167,10 @@ def save_model(net, epoch, path, acc, is_best, **kwargs):
     }
     for key, value in kwargs.items():
         state[key] = value
-    filepath = os.path.join(path, "last.pth")
+    filepath = os.path.join(path, "last_checkpoint.pth")
     torch.save(state, filepath)
     if is_best:
-        shutil.copyfile(filepath, os.path.join(path, 'best.pth'))
+        shutil.copyfile(filepath, os.path.join(path, 'best_checkpoint.pth'))
 
 
 

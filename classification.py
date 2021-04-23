@@ -14,7 +14,7 @@ import torch.utils.data
 import torch.utils.data.distributed
 import models as models
 from utils import Logger, mkdir_p, progress_bar, save_model, save_args
-from loaders import ModelNet40DataSet
+from datasets import ModelNet40DataSet
 from losses import PointNetLoss, CELoss
 import provider
 
@@ -48,7 +48,7 @@ def main():
     args = parse_args()
     if args.checkpoint is None:
         time_stamp = str(datetime.datetime.now().strftime('-%Y%m%d%H%M%S'))
-        args.checkpoint = 'logs/' + args.model + time_stamp
+        args.checkpoint = 'checkpoints/' + args.model + time_stamp
     if not os.path.isdir(args.checkpoint):
         mkdir_p(args.checkpoint)
         save_args(args)
@@ -122,6 +122,8 @@ def main():
         print(f"Training loss:{train_out['loss']} acc:{train_out['acc']}% time:{train_out['time']}s) | "
               f"Testing loss:{test_out['loss']} acc:{test_out['acc']}% time:{test_out['time']}s) \n\n")
     logger.close()
+
+
     print(f"++++++++" * 2 + "Final results" + "++++++++" * 2)
     print(f"++  Last Train time: {train_out['time']} | Last Test time: {test_out['time']}  ++")
     print(f"++  Best Train loss: {best_train_loss} | Best Test acc: {best_test_loss}  ++")
