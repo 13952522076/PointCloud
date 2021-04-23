@@ -1,28 +1,40 @@
 #!/usr/bin/env bash
 
-nohup python classification.py --use_normals --use_uniform_sample --model PointNet2SSG > nohup/PointNet2SSG.out &
+printf "\n\n\n\n Training PointNet2SSG\n"
+python classification.py --use_normals --use_uniform_sample --model PointNet2SSG
 
-nohup python classification.py --use_normals --use_uniform_sample --model PointTransformer > nohup/PointTransformer.out &
+printf "\n\n\n\n Training PointTransformer\n"
+python classification.py --use_normals --use_uniform_sample --model PointTransformer
 
-nohup python classification.py --use_normals --use_uniform_sample --model Simpler2Amax > nohup/Simpler2Amax.out &
+printf "\n\n\n\n Training Simpler2Amax\n"
+python classification.py --use_normals --use_uniform_sample --model Simpler2Amax
 
-nohup python classification.py --use_normals --use_uniform_sample --model Simpler2A > nohup/Simpler2A.out &
+printf "\n\n\n\n Training Simpler2A\n"
+python classification.py --use_normals --use_uniform_sample --model Simpler2A
 
-nohup python classification.py --use_uniform_sample --model PCT > nohup/PCT.out &
+printf "\n\n\n\n Training PCT\n"
+python classification.py --use_uniform_sample --model PCT
 
-nohup python classification.py --use_normals --use_uniform_sample --model MLP_max > nohup/MLP_max.out &
+printf "\n\n\n\n Training MLP_max\n"
+python classification.py --use_normals --use_uniform_sample --model MLP_max
 
-nohup python classification.py --use_normals --use_uniform_sample --model MLP2_max > nohup/MLP2_max.out &
+printf "\n\n\n\n Training MLP2_max\n"
+python classification.py --use_normals --use_uniform_sample --model MLP2_max
 
-nohup python classification.py --use_normals --use_uniform_sample --model develop1Amax > nohup/develop1Amax.out &
+printf "\n\n\n\n Training develop1Amax\n"
+python classification.py --use_normals --use_uniform_sample --model develop1Amax
 
-nohup python classification.py --use_normals --use_uniform_sample --model develop2Amax > nohup/develop2Amax.out &
+printf "\n\n\n\n Training develop2Amax\n"
+python classification.py --use_normals --use_uniform_sample --model develop2Amax
 
-nohup python classification.py --use_normals --use_uniform_sample --model develop3Amax > nohup/develop3Amax.out &
+printf "\n\n\n\n Training develop3Amax\n"
+python classification.py --use_normals --use_uniform_sample --model develop3Amax
 
-nohup python classification.py --use_normals --use_uniform_sample --model develop4Amax > nohup/develop4Amax.out &
+printf "\n\n\n\n Training develop4Amax\n"
+python classification.py --use_normals --use_uniform_sample --model develop4Amax
 
-nohup python classification.py --use_normals --use_uniform_sample --model develop5Amax > nohup/develop5Amax.out &
+printf "\n\n\n\n Training develop5Amax\n"
+python classification.py --use_normals --use_uniform_sample --model develop5Amax
 
 
 
