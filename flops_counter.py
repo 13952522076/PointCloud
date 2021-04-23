@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch
 import numpy as np
 
+
 def get_model_complexity_info(model, points, print_per_layer_stat=True, as_strings=True, channel=3):
     batch = torch.FloatTensor(1, channel, points)
     flops_model = add_flops_counting_methods(model)
@@ -311,3 +312,13 @@ def remove_flops_counter_hook_function(module):
 def add_flops_mask_variable_or_reset(module):
     if is_supported_instance(module):
         module.__mask__ = None
+
+
+
+if __name__ == '__main__':
+    import models as models
+    model = models.__dict__['develop2Amax'](num_classes=40)
+
+    flops, params = get_model_complexity_info(model, 1024, as_strings=False, print_per_layer_stat=False, channel=6)
+    print('Flops:  %.3fG' % (flops / 1e9))
+    print('Params: %.2fM' % (params / 1e6))

@@ -35,10 +35,12 @@ def parse_args():
     parser.add_argument('--learning_rate', default=0.001, type=float, help='learning rate in training')
     parser.add_argument('--num_points', type=int, default=1024, help='Point Number')
     parser.add_argument('--optimizer', type=str, default='Adam', help='optimizer for training')
-    parser.add_argument('--decay_rate', type=float, default=1e-4, help='decay rate')
+    parser.add_argument('--weight_decay', type=float, default=1e-4, help='decay rate')
+    parser.add_argument('--step_size', type=int, default=20, help='LR step size')
+    parser.add_argument('--gamma', type=float, default=0.7, help='LR scheduler gamma lr*gamma')
     parser.add_argument('--use_normals', action='store_true', default=False, help='use normals besides x,y,z')
     parser.add_argument('--process_data', action='store_true', default=False, help='save data offline')
-    parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampiling')
+    parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampling')
     return parser.parse_args()
 
 
@@ -85,26 +87,46 @@ def main():
         cudnn.benchmark = True
     if args.optimizer == 'Adam':
         optimizer = torch.optim.Adam(net.parameters(), lr=args.learning_rate, betas=(0.9, 0.999),
-                                     eps=1e-08, weight_decay=args.decay_rate)
+                                     eps=1e-08, weight_decay=args.weight_decay)
     else:
-        optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.7)
+        optimizer = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.9,)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
 
-    best_acc = 0.  # best test accuracy
+    best_test_acc = 0.  # best test accuracy
+    best_train_acc = 0.
+    best_test_loss = float("inf")
+    best_train_loss = float("inf")
+
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
     for epoch in range(start_epoch, args.epoch):
         print('Epoch(%d/%s) Learning Rate %s:' % (epoch + 1, args.epoch, optimizer.param_groups[0]['lr']))
         train_out = train(net, trainDataLoader, optimizer, criterion, device)  # {"loss", "acc", "time"}
         test_out = validate(net, testDataLoader, criterion, device)
         scheduler.step()
-        is_best = True if test_out["acc"] > best_acc else False
+
+        if test_out["acc"] > best_test_acc:
+            best_test_acc = test_out["acc"]
+            is_best = True
+        else:
+            is_best = False
+
+        best_test_acc = test_out["acc"] if (test_out["acc"] > best_test_acc) else best_test_acc
+        best_train_acc = train_out["acc"] if (train_out["acc"] > best_train_acc) else best_train_acc
+        best_test_loss = test_out["loss"] if (test_out["loss"] < best_test_loss) else best_test_loss
+        best_train_loss = train_out["loss"] if (train_out["loss"] < best_train_loss) else best_train_loss
+
         save_model(net, epoch, path=args.checkpoint, acc=test_out["acc"], is_best=is_best)
         logger.append([epoch, optimizer.param_groups[0]['lr'],
-                              train_out["loss"], train_out["acc"],
-                              test_out["loss"], test_out["acc"]])
+                       train_out["loss"], train_out["acc"],
+                       test_out["loss"], test_out["acc"]])
         print(f"Training loss:{train_out['loss']} acc:{train_out['acc']}% time:{train_out['time']}s) | "
               f"Testing loss:{test_out['loss']} acc:{test_out['acc']}% time:{test_out['time']}s) \n\n")
     logger.close()
+    print(f"++++++++" * 2 + "Final results" + "++++++++" * 2)
+    print(f"++  Last Train time: {train_out['time']} | Last Test time: {test_out['time']}  ++")
+    print(f"++  Best Train loss: {best_train_loss} | Best Test acc: {best_test_loss}  ++")
+    print(f"++  Best Train acc: {best_train_acc} | Best Test acc: {best_test_acc}  ++")
+    print(f"++++++++" * 5)
 
 
 def train(net, trainloader, optimizer, criterion, device):
