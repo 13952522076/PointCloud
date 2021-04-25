@@ -283,6 +283,9 @@ def Simpler2D(num_classes=40, **kwargs: Any) -> Simpler2:
 def Simpler2E(num_classes=40, **kwargs: Any) -> Simpler2:
     return Simpler2(num_classes=num_classes, blocks=[3, 4, 6, 3], reducer=4, **kwargs)
 
+def Simpler2Emax(num_classes=40, **kwargs: Any) -> Simpler2:
+    return Simpler2(num_classes=num_classes, blocks=[3, 4, 6, 3], reducer=4, pool="max", **kwargs)
+
 if __name__ == '__main__':
     print("===> testing attention module ...")
     data = torch.rand(32, 64, 6, 128)  # [b batch, p points, k nerigbhors, d dimension]
