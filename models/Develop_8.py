@@ -265,7 +265,7 @@ class Develop8(nn.Module):
             b,p,k,d = out.shape
             class_token = (self.class_tokens[i]).expand(b, p, 1, d)
             # print(f"class_token.device: {class_token.device} | out.device: {out.device}")
-            out = torch.cat([class_token,out], dim=-2)
+            out = torch.cat([out, class_token], dim=-2)  # default first point is sampled, add class-token to last.
             coords, features = out[:,:,:,:3], out[:,:,:, 3:]
             features = self.transformer_stages[i](features)
             sampled_points = (features[:, :, 0, :]).unsqueeze(dim=-2)
