@@ -222,7 +222,7 @@ class Develop8(nn.Module):
         self.linear = nn.Linear(channel, embed_channel)
         self.transformer_stages = nn.ModuleList()
         self.transformer_downs = nn.ModuleList()
-        self.class_tokens = []
+        self.class_tokens = nn.ModuleList()
         self.groupers = nn.ModuleList()
         for stage, block_num in enumerate(blocks):
             # for appending transformer blocks
@@ -264,7 +264,7 @@ class Develop8(nn.Module):
             out = self.groupers[i](out)  # [b,p,k,3+c]
             b,p,k,d = out.shape
             class_token = (self.class_tokens[i]).expand(b, p, 1, d)
-            print(f"class_token.device: {class_token.device} | out.device: {out.device}")
+            # print(f"class_token.device: {class_token.device} | out.device: {out.device}")
             out = torch.cat([class_token,out], dim=-2)
             coords, features = out[:,:,:,:3], out[:,:,:, 3:]
             features = self.transformer_stages[i](features)
