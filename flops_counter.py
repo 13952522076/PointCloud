@@ -317,7 +317,7 @@ def add_flops_mask_variable_or_reset(module):
 
 if __name__ == '__main__':
     import models as models
-    model = models.__dict__['develop2Amax'](num_classes=40)
+    model = models.__dict__['develop7Amax'](num_classes=40)
 
     flops, params = get_model_complexity_info(model, 1024, as_strings=False, print_per_layer_stat=False, channel=6)
     print('Flops:  %.3fG' % (flops / 1e9))
