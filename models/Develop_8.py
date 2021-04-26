@@ -222,7 +222,7 @@ class Develop8(nn.Module):
         self.linear = nn.Linear(channel, embed_channel)
         self.transformer_stages = nn.ModuleList()
         self.transformer_downs = nn.ModuleList()
-        self.class_tokens = nn.ModuleList()
+        self.class_tokens = nn.ParameterList()
         self.groupers = nn.ModuleList()
         for stage, block_num in enumerate(blocks):
             # for appending transformer blocks
