@@ -286,7 +286,21 @@ def Simpler2E(num_classes=40, **kwargs: Any) -> Simpler2:
 def Simpler2Emax(num_classes=40, **kwargs: Any) -> Simpler2:
     return Simpler2(num_classes=num_classes, blocks=[3, 4, 6, 3], reducer=4, pool="max", **kwargs)
 
+
+def Simpler2Fmax(num_classes=40, use_normals=True, **kwargs: Any) -> Simpler2:
+    return Simpler2(num_classes=num_classes, use_normals=use_normals,
+                    points=512, blocks=[1, 1, 1, 1], embed_channel=32,
+                    k_neighbors=[32, 16, 16, 8], heads=8, dim_head=16,
+                    expansion=2, reducer=4, pool="max", **kwargs)
+
 if __name__ == '__main__':
+    print("===> testing Simpler2Fmax ...")
+    pointsformer = Simpler2Fmax()
+    data = torch.rand(2, 6, 1024)
+    out = pointsformer(data)
+    print(out["logits"].shape)
+
+
     print("===> testing attention module ...")
     data = torch.rand(32, 64, 6, 128)  # [b batch, p points, k nerigbhors, d dimension]
     model = Attention(128)
@@ -354,4 +368,6 @@ if __name__ == '__main__':
     data = torch.rand(2, 6, 1024)
     out = pointsformer(data)
     print(out["logits"].shape)
+
+
 

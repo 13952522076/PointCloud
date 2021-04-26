@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .pointnet2_utils import PointNetSetAbstraction
@@ -50,3 +51,11 @@ class get_loss(nn.Module):
         total_loss = F.nll_loss(pred, target)
 
         return total_loss
+
+
+if __name__ == '__main__':
+    print("===> testing model ...")
+    model = PointNet2SSG(num_classes=40)
+    data = torch.rand(2, 6, 1024)
+    out = model(data)
+    print(out["logits"].shape)
