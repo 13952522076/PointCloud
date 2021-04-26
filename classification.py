@@ -126,7 +126,7 @@ def main():
 
     print(f"++++++++" * 2 + "Final results" + "++++++++" * 2)
     print(f"++  Last Train time: {train_out['time']} | Last Test time: {test_out['time']}  ++")
-    print(f"++  Best Train loss: {best_train_loss} | Best Test acc: {best_test_loss}  ++")
+    print(f"++  Best Train loss: {best_train_loss} | Best Test loss: {best_test_loss}  ++")
     print(f"++  Best Train acc: {best_train_acc} | Best Test acc: {best_test_acc}  ++")
     print(f"++++++++" * 5)
 

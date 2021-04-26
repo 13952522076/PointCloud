@@ -6,7 +6,8 @@ from .point_transformer import PointTransformer
 from .pointsformer import *
 from .Simpler import Simpler
 from .Simpler2 import Simpler2A, Simpler2B, Simpler2C, Simpler2D, \
-                        Simpler2E, Simpler2Amax, Simpler2Emax, Simpler2Fmax
+                        Simpler2E, Simpler2Amax, Simpler2Emax, Simpler2Fmax,\
+                        Simpler2Gmax
 from .Simpler3 import Simpler3A
 from .pct import PCT
 from .mlp import MLP_max, MLP_avg
