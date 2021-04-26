@@ -2,6 +2,8 @@
 Try class token, k neighbors + 1.
 the class token is shared by all sampled points groups.
 the class token is added for each transformer block stage, not transformer block, be careful.
+    Since the class token is shared for all sampled points groups cross batch,
+    it should potentially get the info of all points and peerform like BN.
 """
 import torch.nn as nn
 import torch.utils.data
