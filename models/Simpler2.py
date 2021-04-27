@@ -311,6 +311,20 @@ def Simpler2Hmax(num_classes=40, use_normals=True, **kwargs: Any) -> Simpler2:
                     k_neighbors=[32, 16, 16, 8], heads=8, dim_head=16,
                     expansion=2, reducer=4, pool="max", **kwargs)
 
+
+
+def Simpler2Jmax(num_classes=40, use_normals=True, **kwargs: Any) -> Simpler2:
+    return Simpler2(num_classes=num_classes, use_normals=use_normals,
+                    points=512, blocks=[1, 1, 1, 1], embed_channel=64,
+                    k_neighbors=[16, 16, 16, 16], heads=8, dim_head=16,
+                    expansion=2, reducer=4, pool="max", **kwargs)
+
+def Simpler2Kmax(num_classes=40, use_normals=True, **kwargs: Any) -> Simpler2:
+    return Simpler2(num_classes=num_classes, use_normals=use_normals,
+                    points=512, blocks=[1, 1, 1, 1], embed_channel=64,
+                    k_neighbors=[16, 16, 16, 16], heads=8, dim_head=32,
+                    expansion=2, reducer=4, pool="max", **kwargs)
+
 if __name__ == '__main__':
     print("===> testing Simpler2Fmax ...")
     pointsformer = Simpler2Fmax()
