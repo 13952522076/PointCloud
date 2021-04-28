@@ -14,6 +14,7 @@ from .mlp import MLP_max, MLP_avg
 from .mlp2 import MLP2_max, MLP2_avg
 from .mlp3 import MLP3_max, MLP3_avg
 from .mlp4 import MLP4_max, MLP4_avg
+from .mlp5 import MLP5_max, MLP5_avg
 from .Develop1 import develop1Amax
 from .Develop2 import develop2Amax
 from .Develop3 import develop3Amax
