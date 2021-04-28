@@ -23,3 +23,4 @@ from .Develop5 import develop5Amax
 from .Develop6 import develop6A, develop6Amax
 from .Develop7 import develop7Amax
 from .Develop_8 import develop8Amax, develop8A
+from .Develop_9 import develop9Amax
