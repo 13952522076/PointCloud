@@ -1,3 +1,6 @@
+"""
+Similiar to PointNet, just MLP without BN.
+"""
 import torch.nn as nn
 import torch.utils.data
 import torch.nn.functional as F
