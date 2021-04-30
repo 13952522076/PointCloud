@@ -3,7 +3,7 @@ Re-organized codes for point cloud training
 Usage:
 python main.py --use_normals --use_uniform_sample
 or
-nohup python main.py --use_normals --use_uniform_sample --model Simpler2Jmax > nohup_main/Simpler2Jmax.out &
+nohup python main.py --use_normals --use_uniform_sample --model Simpler2Jmax --learning_rate 0.01 > nohup_main/Simpler2Jmax.out &
 """
 import argparse
 import os

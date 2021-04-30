@@ -103,7 +103,6 @@ class Attention(nn.Module):
         self.to_q = nn.Conv2d(dim, inner_dim, 1, groups=heads, bias=False)
         self.to_k = nn.Conv2d(dim, inner_dim, 1, groups=heads, bias=False)
         self.to_v = nn.Conv2d(dim, inner_dim, 1, groups=heads, bias=False)
-        self.to_qkv = nn.Linear(dim, inner_dim * 3, bias=False)
         self.to_out = nn.Linear(inner_dim, dim) if project_out else nn.Identity()
 
     def forward(self, x):
