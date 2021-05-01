@@ -254,7 +254,7 @@ class Combine1(nn.Module):
             out = self.groupers[i](out)  # [b,p,k,3+c]
             out = self.transformer_stages[i](out)
             coords, features = out[:, :, :, :3], out[:, :, :, 3:]
-            print(f"features.shape: {features.shape}")
+            # print(f"features.shape: {features.shape}")
             sampled_points = (features[:, :, 0, :]).unsqueeze(dim=-2)
             coords = coords[:, :, 0, :]
             out = self.transformer_downs[i](sampled_points)
