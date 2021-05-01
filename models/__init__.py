@@ -6,8 +6,8 @@ from .point_transformer import PointTransformer
 from .pointsformer import *
 from .Simpler import Simpler
 from .Simpler2 import Simpler2A, Simpler2B, Simpler2C, Simpler2D, \
-                        Simpler2E, Simpler2Amax, Simpler2Emax, Simpler2Fmax,\
-                        Simpler2Gmax, Simpler2Hmax, Simpler2Imax, Simpler2Jmax, Simpler2Kmax
+    Simpler2E, Simpler2Amax, Simpler2Emax, Simpler2Fmax, \
+    Simpler2Gmax, Simpler2Hmax, Simpler2Imax, Simpler2Jmax, Simpler2Kmax
 from .Simpler3 import Simpler3A
 from .pct import PCT
 from .mlp import MLP_max, MLP_avg
@@ -24,3 +24,6 @@ from .Develop6 import develop6A, develop6Amax
 from .Develop7 import develop7Amax
 from .Develop_8 import develop8Amax, develop8A
 from .Develop_9 import develop9Amax
+
+##########################
+from .Combine1 import combine1A, combine1Amax, combine1Bmax, combine1Cmax
