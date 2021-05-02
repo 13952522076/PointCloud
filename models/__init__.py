@@ -27,6 +27,9 @@ from .Develop_9 import develop9Amax
 from .Develop10 import develop10Amax
 from .Develop11 import develop11Amax
 from .Develop12 import develop12Amax
+from .Develop13 import develop13Amax
+
+
 
 ##########################
 from .Combine1 import combine1A, combine1Amax, combine1Bmax, combine1Cmax
