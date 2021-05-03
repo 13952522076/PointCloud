@@ -7,6 +7,8 @@ import argparse
 import os
 import datetime
 import torch
+import random
+import numpy as np
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim
@@ -41,11 +43,22 @@ def parse_args():
     parser.add_argument('--use_normals', action='store_true', default=False, help='use normals besides x,y,z')
     parser.add_argument('--process_data', action='store_true', default=False, help='save data offline')
     parser.add_argument('--use_uniform_sample', action='store_true', default=False, help='use uniform sampling')
+    parser.add_argument('--randseed', type=int, help='rand seed')
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    # for random seed
+    if args.randseed:
+        print(f"Random seed is fixed to {args.randseed} （Pytorch, python, numpy） for reproducibility...")
+        torch.manual_seed(args.randseed)
+        random.seed(args.randseed)
+        np.random.seed(args.randseed)
+
+    else:
+        print("Random seed is not fixed Pytorch, python, numpy）...")
+
     if args.checkpoint is None:
         time_stamp = str(datetime.datetime.now().strftime('-%Y%m%d%H%M%S'))
         args.checkpoint = 'checkpoints/' + args.model + time_stamp
