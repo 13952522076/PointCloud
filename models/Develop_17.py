@@ -1,7 +1,9 @@
 """
+
 In our implementation, we provide two options for attention, dotproduction and subtraction
 Rather than dot-production, we consider the substraction instead.
 a develop17 template, copyed from simple2.py
+!!! Important: channel-wise subtraction would significantly increasing GPU memory. 20501MiB vs. 4719MiB !!!
 """
 import torch.nn as nn
 import torch.utils.data
