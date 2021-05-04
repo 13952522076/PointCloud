@@ -20,6 +20,7 @@ from .Develop2 import develop2Amax
 from .Develop3 import develop3Amax
 from .Develop4 import develop4Amax
 from .Develop5 import develop5Amax
+from .mlp6 import MLP6_max
 from .Develop6 import develop6A, develop6Amax
 from .Develop7 import develop7Amax
 from .Develop_8 import develop8Amax, develop8A
