@@ -32,6 +32,7 @@ from .Develop13 import develop13Amax
 from .Develop14 import develop14Amax, develop14Bmax
 from .Develop15 import develop15Amax, develop15Bmax
 from .Develop16 import develop16Amax
+from .Develop_17 import develop17Asub, develop17Adot
 
 
 
