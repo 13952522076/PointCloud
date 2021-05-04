@@ -1,6 +1,7 @@
 """
-remove unneccessary layers, add channel attention  (mean: k kneighbors, p points)
-Develop15 Changed based on Simple2: implement the multi-head using group conv.
+remove channelattention, to investigate the role.
+Based on Develop16: remove unneccessary layers, add channel attention  (mean: k kneighbors)
+Changed based on Simple2: implement the multi-head using group conv.
 """
 import torch.nn as nn
 import torch.utils.data
@@ -153,7 +154,7 @@ class ChannelAttention(nn.Module):
         :input x: [b batch, p points, k nerigbhors, d dimension]
         :return: [b batch, p points, k nerigbhors, d dimension]
         """
-        att = x.mean(dim=2, keepdim=True).mean(dim=1, keepdim=True)
+        att = x.mean(dim=2, keepdim=True)
         att = self.ca(att)
         return att * x
 
@@ -174,7 +175,7 @@ class TransformerBlock(nn.Module):
         self.norm2 = nn.LayerNorm(dim)
         self.attention = Attention(dim=dim, heads=heads, dim_head=dim_head)
         self.ffn = FeedForward(dim=dim)
-        self.chanelattention = ChannelAttention(dim=dim)
+        # self.chanelattention = ChannelAttention(dim=dim)
 
     def forward(self, x):
         """
@@ -185,7 +186,7 @@ class TransformerBlock(nn.Module):
         att = att + x
         out = self.ffn(self.norm2(att))
         out = out + att  # [b,p,k,d]
-        out = self.chanelattention(out)
+        # out = self.chanelattention(out)
         return out
 
 
@@ -251,11 +252,11 @@ class FPSKNNGrouper(nn.Module):
         return grouped_points
 
 
-class Develop15(nn.Module):
+class Develop16(nn.Module):
     def __init__(self, num_classes=40, use_normals=True, points=512,
                  blocks=[1, 2, 1, 1], embed_channel=32, k_neighbors=[16, 16, 16, 16],
                  heads=8, dim_head=16, expansion=2, reducer=4, pool="avg", **kwargs):
-        super(Develop15, self).__init__()
+        super(Develop16, self).__init__()
         self.stages = len(blocks)
         self.num_classes = num_classes
         channel = 6 if use_normals else 3
@@ -312,14 +313,14 @@ class Develop15(nn.Module):
         }
 
 
-def develop15A(num_classes=40, **kwargs: Any) -> Develop15:
-    return Develop15(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, **kwargs)
+def develop16A(num_classes=40, **kwargs: Any) -> Develop16:
+    return Develop16(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, **kwargs)
 
-def develop15Amax(num_classes=40, **kwargs: Any) -> Develop15:
-    return Develop15(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, pool="max", **kwargs)
+def develop16Amax(num_classes=40, **kwargs: Any) -> Develop16:
+    return Develop16(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, pool="max", **kwargs)
 
-def develop15Bmax(num_classes=40, **kwargs: Any) -> Develop15:
-    return Develop15(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, embed_channel=64, pool="max",  **kwargs)
+def develop16Bmax(num_classes=40, **kwargs: Any) -> Develop16:
+    return Develop16(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, embed_channel=64, pool="max",  **kwargs)
 
 if __name__ == '__main__':
     print("===> testing attention module ...")
@@ -354,14 +355,14 @@ if __name__ == '__main__':
     grouped = grouper(data)
     print(grouped.shape)
 
-    print("===> testing develop15A ...")
-    pointsformer = develop15A()
+    print("===> testing develop16A ...")
+    pointsformer = develop16A()
     data = torch.rand(2, 6, 1024)
     out = pointsformer(data)
     print(out["logits"].shape)
 
-    print("===> testing develop15Amax ...")
-    pointsformer = develop15Amax()
+    print("===> testing develop16Amax ...")
+    pointsformer = develop16Amax()
     data = torch.rand(2, 6, 1024)
     out = pointsformer(data)
     print(out["logits"].shape)

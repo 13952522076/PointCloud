@@ -1,5 +1,5 @@
 """
-Based on Develop14: remove unneccessary layers, add channel attention  (mean: k kneighbors)
+remove unneccessary layers, add channel attention  (mean: k kneighbors)
 Develop14 Changed based on Simple2: implement the multi-head using group conv.
 """
 import torch.nn as nn
