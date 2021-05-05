@@ -7,7 +7,7 @@ import torch.utils.data
 from torch.autograd import Variable
 import numpy as np
 
-__all__ = ['PointNet']
+
 
 class STN3d(nn.Module):
     def __init__(self, channel):
