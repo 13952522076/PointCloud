@@ -34,6 +34,10 @@ from .Develop15 import develop15Amax, develop15Bmax
 from .Develop16 import develop16Amax
 from .Develop_17 import develop17Asub, develop17Adot
 
+from .pointnet2_noBN import PointNet2noBN
+from .pointnet2_noDrop import PointNet2noDrop
+from .pointnet2_SimpleFC import PointNet2SimpleFC
+
 
 
 ##########################
