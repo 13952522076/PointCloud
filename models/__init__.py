@@ -37,7 +37,8 @@ from .Develop_17 import develop17Asub, develop17Adot
 from .pointnet2_noBN import PointNet2noBN
 from .pointnet2_noDrop import PointNet2noDrop
 from .pointnet2_SimpleFC import PointNet2SimpleFC
-
+from .pointnet_noBN import PointNetnoBN
+from .mlp_noBN import MLPnoBN_max
 
 
 ##########################
