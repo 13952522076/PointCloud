@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 # from .pointnet2_utils import PointNetSetAbstraction
+
+
 def square_distance(src, dst):
     """
     Calculate Euclid distance between each two points.
@@ -24,7 +26,6 @@ def square_distance(src, dst):
     dist += torch.sum(src ** 2, -1).view(B, N, 1)
     dist += torch.sum(dst ** 2, -1).view(B, 1, M)
     return dist
-
 
 
 def farthest_point_sample(xyz, npoint):
@@ -50,6 +51,7 @@ def farthest_point_sample(xyz, npoint):
         farthest = torch.max(distance, -1)[1]
     return centroids
 
+
 def query_ball_point(radius, nsample, xyz, new_xyz):
     """
     Input:
@@ -71,8 +73,6 @@ def query_ball_point(radius, nsample, xyz, new_xyz):
     mask = group_idx == N
     group_idx[mask] = group_first[mask]
     return group_idx
-
-
 
 
 def index_points(points, idx):
@@ -126,7 +126,6 @@ def sample_and_group(npoint, radius, nsample, xyz, points, returnfps=False):
         return new_xyz, new_points
 
 
-
 def sample_and_group_all(xyz, points):
     """
     Input:
@@ -145,7 +144,6 @@ def sample_and_group_all(xyz, points):
     else:
         new_points = grouped_xyz
     return new_xyz, new_points
-
 
 
 class PointNetSetAbstraction(nn.Module):
