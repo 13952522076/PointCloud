@@ -261,6 +261,10 @@ def develop19A(num_classes=40, **kwargs: Any) -> Develop19:
 def develop19Amax(num_classes=40, **kwargs: Any) -> Develop19:
     return Develop19(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, pool="max", **kwargs)
 
+def develop19Bmax(num_classes=40, **kwargs: Any) -> Develop19:
+    return Develop19(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, pool="max",
+                     k_neighbors=[32, 32, 32, 32], **kwargs)
+
 if __name__ == '__main__':
     print("===> testing attention module ...")
     data = torch.rand(32, 64, 6, 128)  # [b batch, p points, k nerigbhors, d dimension]
