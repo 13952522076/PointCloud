@@ -265,6 +265,10 @@ def develop19Bmax(num_classes=40, **kwargs: Any) -> Develop19:
     return Develop19(num_classes=num_classes, blocks=[1, 1, 1, 1], reducer=4, pool="max",
                      k_neighbors=[32, 32, 32, 32], **kwargs)
 
+
+def develop19Cmax(num_classes=40, **kwargs: Any) -> Develop19:
+    return Develop19(num_classes=num_classes, blocks=[2, 2, 2, 2], reducer=4, pool="max", **kwargs)
+
 if __name__ == '__main__':
     print("===> testing attention module ...")
     data = torch.rand(32, 64, 6, 128)  # [b batch, p points, k nerigbhors, d dimension]
@@ -306,6 +310,18 @@ if __name__ == '__main__':
 
     print("===> testing develop19Amax ...")
     pointsformer = develop19Amax()
+    data = torch.rand(2, 6, 1024)
+    out = pointsformer(data)
+    print(out["logits"].shape)
+
+    print("===> testing develop19Bmax ...")
+    pointsformer = develop19Bmax()
+    data = torch.rand(2, 6, 1024)
+    out = pointsformer(data)
+    print(out["logits"].shape)
+
+    print("===> testing develop19Cmax ...")
+    pointsformer = develop19Cmax()
     data = torch.rand(2, 6, 1024)
     out = pointsformer(data)
     print(out["logits"].shape)
