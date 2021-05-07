@@ -236,6 +236,10 @@ class Develop18(nn.Module):
                  blocks=[1, 2, 1, 1], embed_channel=32, k_neighbors=[16, 16, 16, 16],
                  heads=8, dim_head=16, expansion=2, reducer=4, pool="avg", **kwargs):
         super(Develop18, self).__init__()
+        print(f"Parameters: num_classes:{num_classes}| use_normals:{use_normals} | points:{points} | blocks:{blocks}"
+              f" | embed_channel: {embed_channel} k_neighbors:{k_neighbors} | heads:{k_neighbors} ")
+
+
         self.stages = len(blocks)
         self.num_classes = num_classes
         channel = 6 if use_normals else 3
