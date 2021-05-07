@@ -72,8 +72,11 @@ def main():
     try:
         net = models.__dict__[args.model](num_classes=args.num_classes,
                                           use_normals=args.use_normals, num_points=args.num_points)
+        print(f"Building model successfully: "
+              f"{args.num_classes} classes | {args.use_normals} normals | {args.num_points} points")
     except:
         net = models.__dict__[args.model]()
+        print(f"Building model with except.")
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(device)

@@ -1,4 +1,5 @@
 """
+Using the maxpool to replace certain point.
 Must: changes should be clearly presented here!
 a develop19 template, copyed from simple2.py
 """

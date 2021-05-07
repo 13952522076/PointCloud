@@ -358,6 +358,6 @@ if __name__ == '__main__':
 
     print("===> testing develop18Cmax ...")
     pointsformer = develop18Cmax()
-    data = torch.rand(2, 6, 1024)
+    data = torch.rand(2, 3, 1024)
     out = pointsformer(data)
     print(out["logits"].shape)
