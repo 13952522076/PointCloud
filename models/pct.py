@@ -161,6 +161,7 @@ class PCT(nn.Module):
     def __init__(self, num_classes=40, use_normals=True, **kwargs):
         super().__init__()
         output_channels = num_classes
+        self.use_normals = use_normals
         d_points = 6 if use_normals else 3
         self.conv1 = nn.Conv1d(d_points, 64, kernel_size=1, bias=False)
         self.conv2 = nn.Conv1d(64, 64, kernel_size=1, bias=False)
@@ -185,6 +186,8 @@ class PCT(nn.Module):
 
     def forward(self, x):
         x = x.transpose(2,1)
+        if not self.use_normals:
+            x = x[..., :3]
         xyz = x[..., :3]
         x = x.permute(0, 2, 1)
         batch_size, _, _ = x.size()
@@ -217,6 +220,6 @@ class PCT(nn.Module):
 if __name__ == '__main__':
     print("===> testing PCT with use_normals")
     data = torch.rand(10, 6, 1024)
-    model = PCT()
+    model = PCT(use_normals=True)
     out = model(data)
     print(out["logits"].shape)
