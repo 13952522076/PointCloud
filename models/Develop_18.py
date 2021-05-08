@@ -243,6 +243,7 @@ class Develop18(nn.Module):
         self.stages = len(blocks)
         self.num_classes = num_classes
         channel = 6 if use_normals else 3
+        print(f"channel is : {channel}")
         self.linear = nn.Linear(channel, embed_channel)
         self.transformer_stages = nn.ModuleList()
         self.transformer_downs = nn.ModuleList()
@@ -277,6 +278,7 @@ class Develop18(nn.Module):
     def forward(self, x):
         x = x.transpose(1,2)
         # x shape: [b, n, d]
+        print(f"x.shape is {x.shape}")
         coords = x[:,:,:3]
         out = self.linear(x)
         for i in range(self.stages):
