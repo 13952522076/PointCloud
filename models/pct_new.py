@@ -34,7 +34,7 @@ def knn_point(nsample, xyz, new_xyz):
         group_idx: grouped points index, [B, S, nsample]
     """
     sqrdists = square_distance(new_xyz, xyz)
-    print(f"sqrdists shape is: {sqrdists.shape} | nsample is {nsample}")
+    # print(f"sqrdists shape is: {sqrdists.shape} | nsample is {nsample}")
     _, group_idx = torch.topk(sqrdists, nsample, dim = -1, largest=False, sorted=False)
     return group_idx
 
@@ -133,7 +133,7 @@ class PCTNEW(nn.Module):
 
     def forward(self, x):
         x = (x[:,:3,:]).contiguous()
-        xyz = x
+        xyz = x.permute(0, 2, 1)
         batch_size, _, _ = x.size()
         # B, D, N
         x = F.relu(self.bn1(self.conv1(x)))
