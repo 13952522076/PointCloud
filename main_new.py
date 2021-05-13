@@ -4,7 +4,7 @@ Re-organized codes for point cloud training
 Usage:
 python main_new.py --use_normals --use_uniform_sample --model new1Amax
 or
-nohup python main_new.py --use_normals --use_uniform_sample --model new1Amax > new_nohup/new1Amax.out &
+nohup python main_new.py --use_normals --use_uniform_sample --model PCTNEW > new_nohup/PCTNEW.out &
 """
 import argparse
 import os
