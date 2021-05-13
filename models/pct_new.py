@@ -156,7 +156,9 @@ class PCTNEW(nn.Module):
         x = self.dp2(x)
         x = self.linear3(x)
 
-        return x
+        return {
+            "logits": x
+        }
 
 class Point_Transformer_Last(nn.Module):
     def __init__(self, channels=256):
