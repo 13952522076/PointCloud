@@ -111,6 +111,7 @@ class PCTNEW(nn.Module):
 
     def forward(self, x):
         x = (x[:,:,:3]).contiguous()
+        print(f"x shape is {x.shape}")
         xyz = x
         batch_size, _, _ = x.size()
         # B, D, N
