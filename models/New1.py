@@ -226,7 +226,8 @@ class FPSKNNGrouper(nn.Module):
         !!! Notice that: the sampled points = grouped_points[:,:,0,:]
         """
         # sampeld_points = index_points(x, farthest_point_sample(x[:, :, :3], self.points))  # [b,points, 3]
-        sampeld_points = index_points(x, furthest_point_sample(x[:, :, :3], self.points).long())  # [b,points, 3]
+        idx = furthest_point_sample((x[:, :, :3]).contiguous(), self.points).long()
+        sampeld_points = index_points(x, idx)  # [b,points, 3]
         distances = square_distance(sampeld_points[:, :, :3], x[:, :, :3])  # including sampled points self.
         _, knn_idx = torch.topk(distances, self.knn, dim=-1, largest=False, sorted=False)
         grouped_points = index_points(x, knn_idx)  # [b,points, knn, 3+c]
