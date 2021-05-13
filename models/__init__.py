@@ -45,3 +45,7 @@ from .Develop_19 import develop19Amax, develop19Bmax, develop19Cmax
 
 ##########################
 from .Combine1 import combine1A, combine1Amax, combine1Bmax, combine1Cmax
+
+
+##########################
+from .New1 import new1Amax
