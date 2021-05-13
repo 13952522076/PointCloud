@@ -85,9 +85,8 @@ class Local_op(nn.Module):
         return x
 
 class PCTNEW(nn.Module):
-    def __init__(self, args, output_channels=40):
+    def __init__(self, output_channels=40, **kwargs):
         super(PCTNEW, self).__init__()
-        self.args = args
         self.conv1 = nn.Conv1d(3, 64, kernel_size=1, bias=False)
         self.conv2 = nn.Conv1d(64, 64, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm1d(64)
@@ -95,7 +94,7 @@ class PCTNEW(nn.Module):
         self.gather_local_0 = Local_op(in_channels=128, out_channels=128)
         self.gather_local_1 = Local_op(in_channels=256, out_channels=256)
 
-        self.pt_last = Point_Transformer_Last(args)
+        self.pt_last = Point_Transformer_Last()
 
         self.conv_fuse = nn.Sequential(nn.Conv1d(1280, 1024, kernel_size=1, bias=False),
                                     nn.BatchNorm1d(1024),
@@ -104,10 +103,10 @@ class PCTNEW(nn.Module):
 
         self.linear1 = nn.Linear(1024, 512, bias=False)
         self.bn6 = nn.BatchNorm1d(512)
-        self.dp1 = nn.Dropout(p=args.dropout)
+        self.dp1 = nn.Dropout(p=0.5)
         self.linear2 = nn.Linear(512, 256)
         self.bn7 = nn.BatchNorm1d(256)
-        self.dp2 = nn.Dropout(p=args.dropout)
+        self.dp2 = nn.Dropout(p=0.5)
         self.linear3 = nn.Linear(256, output_channels)
 
     def forward(self, x):
@@ -138,9 +137,8 @@ class PCTNEW(nn.Module):
         return x
 
 class Point_Transformer_Last(nn.Module):
-    def __init__(self, args, channels=256):
+    def __init__(self, channels=256):
         super(Point_Transformer_Last, self).__init__()
-        self.args = args
         self.conv1 = nn.Conv1d(channels, channels, kernel_size=1, bias=False)
         self.conv2 = nn.Conv1d(channels, channels, kernel_size=1, bias=False)
 
