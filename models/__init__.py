@@ -49,3 +49,4 @@ from .Combine1 import combine1A, combine1Amax, combine1Bmax, combine1Cmax
 
 ##########################
 from .New1 import new1Amax
+from .New2 import new2Amax
