@@ -110,8 +110,7 @@ class PCTNEW(nn.Module):
         self.linear3 = nn.Linear(256, output_channels)
 
     def forward(self, x):
-        x = (x[:,:,:3]).contiguous()
-        print(f"x shape is {x.shape}")
+        x = (x[:,:3,:]).contiguous()
         xyz = x
         batch_size, _, _ = x.size()
         # B, D, N
